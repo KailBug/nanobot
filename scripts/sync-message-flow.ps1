@@ -67,7 +67,7 @@ $DirtyFiles
 
     Invoke-Git -GitArgs @("switch", $MainBranch)
     Invoke-Git -GitArgs @("fetch", $UpstreamRemote)
-    Invoke-Git -GitArgs @("merge", "$UpstreamRemote/$MainBranch")
+    Invoke-Git -GitArgs @("merge","--ff-only", "$UpstreamRemote/$MainBranch")
     Invoke-Git -GitArgs @("push", $OriginRemote, $MainBranch)
 
     Invoke-Git -GitArgs @("switch", $StudyBranch)
