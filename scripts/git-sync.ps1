@@ -1,7 +1,11 @@
 [CmdletBinding()]
 param(
+    [Parameter(Position = 0)]
+    [Alias("StudyBranch")]
+    [ValidateNotNullOrEmpty()]
+    [string]$TargetBranch = "study/message-flow",
+
     [string]$MainBranch = "main",
-    [string]$StudyBranch = "study/message-flow",
     [string]$UpstreamRemote = "upstream",
     [string]$OriginRemote = "origin"
 )
@@ -61,7 +65,7 @@ $DirtyFiles
 
     # Fail before changing branches if the expected repository layout is absent.
     Invoke-Git -GitArgs @("show-ref", "--verify", "--quiet", "refs/heads/$MainBranch")
-    Invoke-Git -GitArgs @("show-ref", "--verify", "--quiet", "refs/heads/$StudyBranch")
+    Invoke-Git -GitArgs @("show-ref", "--verify", "--quiet", "refs/heads/$TargetBranch")
     Invoke-Git -GitArgs @("remote", "get-url", $UpstreamRemote)
     Invoke-Git -GitArgs @("remote", "get-url", $OriginRemote)
 
@@ -70,17 +74,12 @@ $DirtyFiles
     Invoke-Git -GitArgs @("merge","--ff-only", "$UpstreamRemote/$MainBranch")
     Invoke-Git -GitArgs @("push", $OriginRemote, $MainBranch)
 
-    Invoke-Git -GitArgs @("switch", $StudyBranch)
+    Invoke-Git -GitArgs @("switch", $TargetBranch)
     Invoke-Git -GitArgs @("rebase", $MainBranch)
-    Invoke-Git -GitArgs @(
-        "push",
-        "--force-with-lease",
-        $OriginRemote,
-        $StudyBranch
-    )
+    Invoke-Git -GitArgs @("push","--force-with-lease",$OriginRemote,$TargetBranch)
 
     Write-Host "Repository update completed successfully." -ForegroundColor Green
-    Write-Host "Current branch: $StudyBranch"
+    Write-Host "Current branch: $TargetBranch"
 }
 finally {
     Set-Location -LiteralPath $OriginalLocation
